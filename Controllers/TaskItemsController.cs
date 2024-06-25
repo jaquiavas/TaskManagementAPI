@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Dynamic;
+using TaskManagmentAPI.Data;
 using TaskManagmentAPI.Models;
 
 namespace TaskManagmentAPI.Controllers
@@ -8,44 +10,52 @@ namespace TaskManagmentAPI.Controllers
     [ApiController]
     public class TaskItemsController : ControllerBase
     {
-        private static List<TaskItem> taskItems = new List<TaskItem>()
-        { 
-             new TaskItem{Id = 1, Title = "Website Redesign", Description = "Revamp compant website for better user experiemce"},
-             new TaskItem{Id = 2, Title = "Marketing campaign", Description = "make people spend more money"},
-             new TaskItem{Id = 3, Title = "Product development", Description = "she develop my product"}
-        };
+        private ApiDbContext _context;
+        public TaskItemsController(ApiDbContext dbContext)
+        {
+            _context = dbContext;
+        }
 
         [HttpGet]
         public IEnumerable<TaskItem> Get()
         {
-            return taskItems;
+            return _context.taskItems;
+        }
+
+        [HttpGet("{id}")]
+        public TaskItem Get(int id)
+        {
+            return _context.taskItems.FirstOrDefault(t => t.Id == id);
         }
 
         
         [HttpPost]
         public void Post([FromBody] TaskItem item)
         {
-            taskItems.Add(item);
+            _context.taskItems.Add(item);
+            _context.SaveChanges();
         }
 
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] TaskItem item)
         {
-            var existingTaskItem = taskItems.FirstOrDefault(t => t.Id == id);
+            var existingTaskItem = _context.taskItems.FirstOrDefault(t => t.Id == id);
             if (existingTaskItem != null)
             {
                 existingTaskItem.Title = item.Title;
                 existingTaskItem.Description = item.Description;
+                _context.SaveChanges();
             }
         }
 
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-            var existingTaskItem = taskItems.FirstOrDefault(t => t.Id == id);
+            var existingTaskItem = _context.taskItems.FirstOrDefault(t => t.Id == id);
             if (existingTaskItem != null)
             {
-                taskItems.Remove(existingTaskItem);
+                _context.taskItems.Remove(existingTaskItem);
+                _context.SaveChanges();
             }
         }
 

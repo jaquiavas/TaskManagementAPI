@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TaskManagmentAPI.Data;
+using TaskManagmentAPI.Interfaces;
+using TaskManagmentAPI.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +11,7 @@ builder.Services.AddControllers();
 
 builder.Services.AddDbContext<ApiDbContext>(option => 
 option.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=TaskManagementDB;Integrated Security=True;"));
-
+builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

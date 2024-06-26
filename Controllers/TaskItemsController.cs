@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Immutable;
 using System.Dynamic;
 using TaskManagmentAPI.Data;
+using TaskManagmentAPI.Interfaces;
 using TaskManagmentAPI.Models;
 
 namespace TaskManagmentAPI.Controllers
@@ -10,53 +13,41 @@ namespace TaskManagmentAPI.Controllers
     [ApiController]
     public class TaskItemsController : ControllerBase
     {
-        private ApiDbContext _context;
-        public TaskItemsController(ApiDbContext dbContext)
+        private ITaskRepository _taskRepository;
+        public TaskItemsController(ITaskRepository repo)
         {
-            _context = dbContext;
+            _taskRepository = repo;
         }
 
         [HttpGet]
-        public IEnumerable<TaskItem> Get()
+        public async Task<IEnumerable<TaskItem>> Get()
         {
-            return _context.taskItems;
+             return await _taskRepository.GetAllTasks();
         }
 
         [HttpGet("{id}")]
-        public TaskItem Get(int id)
+        public async Task<TaskItem> Get(int id)
         {
-            return _context.taskItems.FirstOrDefault(t => t.Id == id);
+            return await _taskRepository.GetTaskById(id);
         }
 
         
         [HttpPost]
-        public void Post([FromBody] TaskItem item)
+        public async Task Post([FromBody] TaskItem item)
         {
-            _context.taskItems.Add(item);
-            _context.SaveChanges();
+            await _taskRepository.AddTask(item);
         }
 
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] TaskItem item)
+        public async Task Put(int id, [FromBody] TaskItem item)
         {
-            var existingTaskItem = _context.taskItems.FirstOrDefault(t => t.Id == id);
-            if (existingTaskItem != null)
-            {
-                existingTaskItem.Title = item.Title;
-                existingTaskItem.Description = item.Description;
-                _context.SaveChanges();
-            }
+            await _taskRepository.UpdateTask(id, item);
         }
 
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task Delete(int id)
         {
-            var existingTaskItem = _context.taskItems.FirstOrDefault(t => t.Id == id);
-            if (existingTaskItem != null)
-            {
-                _context.taskItems.Remove(existingTaskItem);
-                _context.SaveChanges();
-            }
+            await _taskRepository.DeleteTask(id);
         }
 
     }

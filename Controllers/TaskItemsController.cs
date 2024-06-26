@@ -20,34 +20,74 @@ namespace TaskManagmentAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<TaskItem>> Get()
+        public async Task<IActionResult> Get()
         {
-             return await _taskRepository.GetAllTasks();
+            var taskItems = await _taskRepository.GetAllTasks();
+            if (taskItems == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return Ok(taskItems);
+            }
         }
 
         [HttpGet("{id}")]
-        public async Task<TaskItem> Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            return await _taskRepository.GetTaskById(id);
+            var taskItem = await _taskRepository.GetTaskById(id);
+            if(taskItem == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return Ok(taskItem);
+            }
         }
 
         
         [HttpPost]
-        public async Task Post([FromBody] TaskItem item)
+        public async Task<IActionResult> Post([FromBody] TaskItem item)
         {
-            await _taskRepository.AddTask(item);
+            var isadded = await _taskRepository.AddTask(item);
+            if (isadded)
+            {
+                return StatusCode(StatusCodes.Status201Created);
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
 
         [HttpPut("{id}")]
-        public async Task Put(int id, [FromBody] TaskItem item)
+        public async Task<IActionResult> Put(int id, [FromBody] TaskItem item)
         {
-            await _taskRepository.UpdateTask(id, item);
+            var isUpdated = await _taskRepository.UpdateTask(id, item);
+            if(isUpdated)
+            {
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task Delete(int id)
         {
-            await _taskRepository.DeleteTask(id);
+            var isDeleted = await _taskRepository.DeleteTask(id);
+            if (isDeleted)
+            {
+                Response.StatusCode = StatusCodes.Status204NoContent;
+            }
+            else
+            {
+                Response.StatusCode = StatusCodes.Status404NotFound;
+            }
         }
 
     }

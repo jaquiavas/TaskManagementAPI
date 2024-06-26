@@ -13,20 +13,37 @@ namespace TaskManagmentAPI.Repositories
         {
             _context = context;
         }
-        public async Task AddTask(TaskItem item)
+        public async Task<bool> AddTask(TaskItem item)
         {
-            await _context.taskItems.AddAsync(item);
-            await _context.SaveChangesAsync();
+            try { 
+                await _context.taskItems.AddAsync(item);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
-        public async Task DeleteTask(int id)
+        public async Task<bool> DeleteTask(int id)
         {
-            var existingTaskItem = await _context.taskItems.FirstOrDefaultAsync(t => t.Id == id);
-            if (existingTaskItem != null)
+            try
             {
-                _context.taskItems.Remove(existingTaskItem);
-                await _context.SaveChangesAsync();
+                var existingTaskItem = await _context.taskItems.FirstOrDefaultAsync(t => t.Id == id);
+                if (existingTaskItem != null)
+                {
+                    _context.taskItems.Remove(existingTaskItem);
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+                return false;
             }
+            catch 
+            {               
+                return false;
+            }
+            
         }
 
         public async Task<IEnumerable<TaskItem>> GetAllTasks()
@@ -39,14 +56,23 @@ namespace TaskManagmentAPI.Repositories
             return await _context.taskItems.FirstOrDefaultAsync(t => t.Id == id);
         }
 
-        public async Task UpdateTask(int id, TaskItem item)
+        public async Task<bool> UpdateTask(int id, TaskItem item)
         {
-            var existingTaskItem = await _context.taskItems.FirstOrDefaultAsync(t => t.Id == id);
-            if (existingTaskItem != null)
+            try
             {
-                existingTaskItem.Title = item.Title;
-                existingTaskItem.Description = item.Description;
-                await _context.SaveChangesAsync();
+                var existingTaskItem = await _context.taskItems.FirstOrDefaultAsync(t => t.Id == id);
+                if (existingTaskItem != null)
+                {
+                    existingTaskItem.Title = item.Title;
+                    existingTaskItem.Description = item.Description;
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+                return false;
+            }
+            catch
+            {
+                return false;
             }
         }
     }

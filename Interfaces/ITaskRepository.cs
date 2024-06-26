@@ -8,10 +8,10 @@ namespace TaskManagmentAPI.Interfaces
 
         Task<TaskItem> GetTaskById(int id);
 
-        Task AddTask(TaskItem item);
+        Task<bool> AddTask(TaskItem item);
 
-        Task UpdateTask(int id, TaskItem item);
+        Task<bool> UpdateTask(int id, TaskItem item);
 
-        Task DeleteTask(int id);
+        Task<bool> DeleteTask(int id);
     }
 }
